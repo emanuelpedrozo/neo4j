@@ -1,0 +1,122 @@
+#### Exercício 1: Crie um nó Person para a pessoa com o nome Robin Wright.
+
+```
+CREATE (:Person {name: 'Robin Wright'})
+```
+
+#### Exercício 2: Recupere o nó Person que você acabou de criar por seu nome 
+
+```
+MATCH (p:Person) WHERE p.name = 'Robin Wright' RETURN p
+```
+
+#### Exercício 3: Adicione o rótulo OlderMovie a qualquer nó Movie lançado antes de 2010.
+
+```
+MATCH (m:Movie) WHERE m.released < 2010 SET m:OlderMovie RETURN DISTINCT labels(m)
+```
+
+#### Exercício 4: Recupere todos os nós Movie com o rótulo OlderMovie para testar se o rótulo foi realmente adicionado.
+
+```
+MATCH (m:OlderMovie) RETURN m.title, m.released
+```
+
+#### Exercício 5: Recupere todas as pessoas que nasceram nos anos 70, exibindo seus nomes e ano de nascimento.
+
+```
+MATCH (p:Person)  WHERE p.born >= 1970 and p.born < 1980 RETURN p.name, p.born
+```
+
+#### Exercício 6: Recupere todas as pessoas que escreveram o filme Speed Racer.
+
+```
+MATCH (p:Person)-[rel:WROTE]->(m:Movie { title: 'Speed Racer'}) RETURN p.name, rel, m.name
+```
+
+#### Exercício 7: Recupere todos os filmes em que Tom Cruise atuou, exibindo seus títulos.
+
+```
+MATCH (p:Person)-[r:ACTED_IN]->(m:Movie) WHERE p.name = 'Tom Cruise' RETURN m
+```
+
+#### Exercício 8: Recupere os atores que atuaram no filme Matrix que nasceram depois de 1960.
+
+```
+MATCH (p:Person)-[r:ACTED_IN]->(m:Movie) WHERE m.title = 'The Matrix' AND p.born > 1960  RETURN p.name, p.born
+```
+
+#### Exercício 9: Recupere todos os atores cujo nome inicia com James.
+
+```
+MATCH (a:Person)-[:ACTED_IN]->(:Movie) WHERE a.name STARTS WITH 'James'RETURN a.name
+```
+
+#### Exercício 10: Recupere todas as pessoas que produziram um filme, mas não dirigiram um filme, retornando seus nomes e os títulos dos filmes.
+
+```
+MATCH (a:Person)-[:PRODUCED]->(m:Movie) WHERE NOT ((a)-[:DIRECTED]->(:Movie)) RETURN a.name, m.title
+```
+
+#### Exercício 11: Recupere os filmes e seus atores onde um dos atores também dirigiu o filme, retornando os nomes dos atores, o nome do diretor e o título do filme.
+
+```
+MATCH (p1:Person)-[:ACTED_IN]->(m:Movie)<-[:ACTED_IN]-(p2:Person) WHERE exists((p2)-[:DIRECTED]->(m)) RETURN  p1.name, p2.name, m.title
+```
+
+#### Exercício 12: Recupere todos os filmes que foram lançados nos anos 2000, 2004 e 2008, retornando seus títulos e anos de lançamento.
+
+```
+MATCH (m:Movie) WHERE m.released in [2000, 2004, 2008] RETURN m.title, m.released
+```
+
+#### Exercício 13: Recupere os filmes que têm um papel de ator que seja o nome do filme, retorne o título do filme e o nome do ator.
+
+```
+MATCH (a:Person)-[r:ACTED_IN]->(m:Movie) WHERE m.title in r.roles RETURN  m.title, a.name
+```
+
+#### Exercício 14: Recupere os atores que atuaram em exatamente cinco filmes, retornando o nome do ator e a lista de filmes desse ator.
+
+```
+MATCH (a:Person)-[:ACTED_IN]->(m:Movie) WITH  a, count(a) AS numMovies, collect(m.title) AS movies WHERE numMovies = 5
+RETURN a.name, movies
+```
+
+#### Exercício 15: Recupere todos os atores que não apareceram em mais de 3 filmes. Devolva seus nomes e lista de filmes.
+
+```
+MATCH (a:Person)-[:ACTED_IN]->(m:Movie) WITH  a,  count(a) AS numMovies, collect(m.title) AS movies WHERE numMovies <= 3
+RETURN a.name, movies
+```
+
+#### Exercício 16: Escreva uma consulta Cypher que recupere todos os atores que atuaram em filmes e colete a lista de filmes para qualquer ator que atuou em mais de cinco filmes. Retorne o nome do ator e a lista.
+
+```
+MATCH (p:Person)-[:ACTED_IN]->(m:Movie) WITH p, collect(m) AS movies WHERE size(movies) > 5 RETURN p.name, movies
+```
+
+#### Exercício 17: Escreva uma consulta que recupere todos os filmes em que Tom Hanks atuou, retornando o título do filme, o ano em que o filme foi lançado, o número de anos em que o filme foi lançado e a idade de Tom quando o filme foi lançado.
+
+```
+MATCH (a:Person)-[:ACTED_IN]->(m:Movie) WHERE a.name = 'Tom Hanks' RETURN  m.title, m.released, date().year  - m.released as yearsAgoReleased, m.released  - a.born AS `age of Tom` ORDER BY yearsAgoReleased
+```
+
+#### Exercício 18: Recupere atores e os filmes em que atuaram, retornando o nome de cada ator e a lista de filmes em que atuaram.
+
+```
+MATCH (a:Person)-[:ACTED_IN]->(m:Movie) RETURN a.name, m.title
+```
+
+#### Exercício 19: Recupere todos os nós que estão a um ou dois saltos de distância que a pessoa chamada James Thompson através do relacionamento FOLLOWS em qualquer direção.
+
+```
+MATCH (p1:Person)-[:FOLLOWS*1..2]-(p2:Person) WHERE p1.name = 'James Thompson' RETURN p1, p2
+```
+
+#### Exercício 20: Recupere os 5 filmes mais bem avaliados, exibindo o nome do filme e a pontuação.
+
+```
+MATCH (:Person)-[r:REVIEWED]->(m:Movie) RETURN  m.title AS movie, r.rating AS rating ORDER BY r.rating DESC LIMIT 5
+```
+
